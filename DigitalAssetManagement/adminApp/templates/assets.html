@@ -1,0 +1,348 @@
+{% extends "admin_index.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-11">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">My Digital Asset List</h6>
+          </div>
+        </div>
+        {% if msg %}
+        <div style="margin: 3em; font-weight: bold;" class="alert alert-danger" role="alert">
+          {{msg}}
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <div class="table-responsive p-0">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Asset Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Description</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">File</th>
+                  <!-- <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Price</th> -->
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Requests</th>
+                
+
+                  <th class="text-secondary opacity-7"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in product_lst %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-2 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm" id="name_{{ forloop.counter }}">{{item.p_name}}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="text-xs text-secondary mb-0" id="desc_{{ forloop.counter }}">{{item.p_desc}}</p>
+                  </td>
+                  <td class="align-middle text-center text-sm">
+                    {% if item.product_type == 'audio' %}
+                    <audio id="my-audio" controls>
+                  
+                      <source src="{{item.p_img}}" type="audio/mpeg">
+                      Your browser does not support the audio tag.
+                    </audio>
+                    {% elif item.product_type == 'pdf' %}
+                    <a href="{{item.p_img}}" download>PDF</a>
+                    {% elif item.product_type == 'img' %}
+                    <img src="{{item.p_img}}" class="avatar avatar-sm me-3" alt="xd">
+                    <a href="{{item.p_img}}" download="">Download</a>
+                    {% endif %}
+                  </td>
+              
+                  <p class="text-xs text-secondary mb-0" hidden id="id_{{ forloop.counter }}">{{item.id}}</p>
+
+                  
+                  <td class="align-middle text-center text-sm">
+                    <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user" data-bs-toggle="modal" data-bs-target="#bidModal" onclick='
+                      view_asset_bids("{{item.id}}",
+                      "{{item.bidmodel_set}}" 
+                      )'>
+                      View Request
+                    </a>
+                    </td>
+                    <td class="align-middle">
+                        <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="edit_product('{{forloop.counter}}')">
+                          Edit
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                
+ 
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <button type="button" class="btn bg-gradient-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Create New Asset
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-weight-normal" id="exampleModalLabel">Create or Update Asset</h5>
+          <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="product_frm_id" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-12">
+                <div class="input-group input-group-outline my-3">
+                  <label class="form-label">Name</label>
+                  <input type="text" id="p_name" name="p_name" class="form-control">
+                  <input type="hidden" id="p_id" name="p_id" value="">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="input-group input-group-outline my-3">
+                  <input type="hidden" id="type_id" name="type_id" value="" class="form-control">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="input-group input-group-outline is-valid my-3">
+                  <textarea class="form-control" id="p_desc" placeholder="description" name="p_desc"></textarea>
+                </div>
+              </div>
+            </div>
+<!--             
+            <div class="row">
+                <div class="col-md-12">
+                  <div class="input-group input-group-outline my-3">
+                    <label class="form-label">price</label>
+                    <input type="text" id="p_price" name="p_price" class="form-control">
+                  </div>
+                </div>
+              </div> -->
+            <div class="row">
+              <div class="col-md-12">
+                <div class="input-group input-group-outline my-3">
+                  <input type="file" id="p_img" name="p_img" class="form-control">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn bg-gradient-primary" name="form1-submit">Save</button>
+              
+              <button type="submit" class="btn btn-warning" onclick='set_id("{{item}}")' name="form2-delete">Delete</button>
+            </div>
+          </form>
+          
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+   <!-- Modal -->
+    <!-- Modal -->
+  <div class="modal fade" id="bidModal" style="--bs-modal-width: 800px;" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-weight-normal" id="exampleModalLabel" style="margin-left: 1.5em;">View Asset Request</h5>
+          <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="card-body">
+                <div class="table-responsive p-0">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col" style="text-align: center;">Name</th>
+                            <!-- <th scope="col" style="text-align: center;">Bid Raised</th> -->
+                            <th scope="col" style="text-align: center;">Date Time</th>
+                            <th scope="col" style="text-align: center;">Accept</th>
+                          </tr>
+                        </thead>
+                        
+                          <tbody id="bid_row_id">
+
+                          </tbody>
+ 
+                      </table>
+                </div>
+              </div>
+   
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+   <!-- Button trigger modal -->
+
+<!-- Modal -->
+<div class="modal fade bd-example-modal-lg" id="bidsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col" style="text-align: center;">Name</th>
+              <th scope="col" style="text-align: center;">Bid Raised</th>
+              <th scope="col" style="text-align: center;">Date Time</th>
+              <th scope="col" style="text-align: center;">Accept Bid</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center;">Mark</td>
+              <td style="text-align: center;">4000</td>
+              <td style="text-align: center;">4th Mar 2023</td>
+              <td style="text-align: center;"><button type="button" class="btn btn-primary">Save changes</button></td>
+            </tr>
+            <tr>
+              <td style="text-align: center;">Polo</td>
+              <td style="text-align: center;">2000</td>
+              <td style="text-align: center;">1th Mar 2023</td>
+              <td style="text-align: center;"><button type="button" class="btn btn-primary">Save changes</button></td>
+            </tr>
+            <tr>
+              <td style="text-align: center;">Steve</td>
+              <td style="text-align: center;">1000</td>
+              <td style="text-align: center;">2th Feb 2023</td>
+              <td style="text-align: center;"><button type="button" class="btn btn-primary">Save changes</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+  function edit_product(counter){
+    debugger
+    document.getElementById("p_name").value = document.getElementById("name_"+counter).innerHTML;
+    document.getElementById("p_desc").value = document.getElementById("desc_"+counter).innerHTML;
+    // document.getElementById("p_price").value = document.getElementById("price_"+counter).innerHTML;
+    document.getElementById("p_id").value = document.getElementById("id_"+counter).innerHTML;
+
+  }
+  
+  function view_asset_bids(id, bid_data){
+    bid_lst = JSON.parse(bid_data.replace(/'/g, "\""));
+    // document.getElementById("asset_id").value = id;
+
+    var bid_row = ''
+    bid_lst.forEach(item => {
+      console.log(`id: ${item.id}, user: ${item.user}, price: ${item.price}`);
+      var u_id = item.user.id;
+      var submit_data = JSON.stringify(
+          {
+            'user_id':item.user.id, 
+            'asset_id':id,
+          }
+        )
+      bid_row += `
+          <tr>
+          <input type="hidden" name="asset_id" id="asset_id" value=${item.id}>
+          <input type="hidden" name="asset_id" id="asset_id" value=${item.id}>
+          <td style="text-align: center; vertical-align: middle;">${item.user.username}</td>
+          
+          <td style="text-align: center; vertical-align: middle;">${item.bid_date_formatted}</td>
+          <td style="text-align: center; vertical-align: middle;"><button type="submit" style="margin: 0;" class="btn bg-gradient-primary" name="form1-submit" onclick=submitForm(${submit_data})>Accept Request</button></td>
+        </tr>
+      `
+      const tbody = document.querySelector('#bid_row_id');
+      tbody.innerHTML = bid_row;
+      tbody.innerHTML += `<hr>`
+    });
+
+  }
+
+  function submitForm(submit_data){
+
+    swal("Are you sure you want to accept this Request.")
+    .then((value) => {
+      debugger
+      var csrftoken = getCookie('csrftoken');
+      if(value==true){
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'my_asset_list' %}",
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            data: submit_data,
+            success: function(data) {
+              swal({
+                title: "Success",
+                text: "Request accepted successfully",
+                icon: "success",
+                button: "continue!",
+              }).then((value) => {
+                location.reload();
+              })
+            }
+        });
+      }
+    });
+
+    
+    console.log(bid_id);
+  }
+
+  function getCookie(name) {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+          }
+          }
+      }
+      return cookieValue;
+      }
+</script>
+<script>
+  var audio = document.getElementById("my-audio");
+  audio.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+  });
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+{% endblock %}

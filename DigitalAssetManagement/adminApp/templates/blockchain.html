@@ -1,0 +1,128 @@
+{% extends "admin_index.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-11">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">BlockChain ledgers</h6>
+          </div>
+        </div>
+        {% if msg %}
+        <div style="margin: 3em; font-weight: bold;" class="alert alert-danger" role="alert">
+          {{msg}}
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <div class="table-responsive p-0">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Asset Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Block</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Type of action</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Timestamp</th>
+                  
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Bids</th>
+
+                  <th class="text-secondary opacity-7"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle" style="border: 1px solid;" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                      Select asset
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                        {% for item in dropdown_set %}
+                        <li><a class="dropdown-item" href="{% url 'asset_block_chain_list' pk=item.1 %}">{{ item.0 }}</a></li>
+                        {% endfor %}
+                    </ul>
+                  </div>
+                {% for item in asset_lst %}
+                <tr>
+                  <td>
+                    <div class="d-flex px-3 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm" id="name_{{ forloop.counter }}">{{item.product_details.p_name}}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex px-2 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm" id="name_{{ forloop.counter }}">{{item.block}}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex ">
+                      <div class="d-flex flex-column justify-content-center">
+                        <p class="mb-0 text-sm" id="name_{{ forloop.counter }}">{{item.type_of_block}}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex ">
+                      <div class="d-flex flex-column justify-content-center">
+                        <p class="mb-0 text-sm" id="name_{{ forloop.counter }}">{{item.time_stamp}}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="align-middle text-center text-sm">
+                    <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user" data-bs-toggle="modal" onclick='edit_product(
+                      "{{item.id}}",
+                      "{{item.block_detail}}"
+                      )' data-bs-target="#exampleModal">View Details</a>
+                  </td>
+
+                </tr>
+                {% endfor %}
+                
+ 
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-weight-normal" id="exampleModalLabel" style="margin-left: 1.5em;">Block Details</h5>
+          <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="card-body">
+                <div class="table-responsive p-0">
+                    <table class="table">
+                        <span id="block_detail_id">Hello</span>
+                      </table>
+                </div>
+              </div>
+
+
+          
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+  function edit_product(id, bid_data){
+    document.getElementById("block_detail_id").innerHTML = bid_data;   
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "admin_index.html" %}
+{% load static %}
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-11">
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="bg-gradient-primary shadow-primary border-radius-lg pt-4 pb-3">
+            <h6 class="text-white text-capitalize ps-3">Explore Digital Assets</h6>
+          </div>
+        </div>
+        {% if msg %}
+        <div style="margin: 3em; font-weight: bold;" class="alert alert-danger" role="alert">
+          {{msg}}
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <div class="table-responsive p-0">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Asset Owner</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Asset Name</th>
+                  <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Description</th>
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">File</th> 
+                  <!-- <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Price</th> -->
+                  <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Requests</th>
+
+                  <th class="text-secondary opacity-7"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in product_lst %}
+                
+                {% if item.p_owner != request.session.user.id %}
+
+                <tr>
+                  <td>
+                    <div class="d-flex px-3 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm" id="name_{{ forloop.counter }}">{{item.owner_name}}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="d-flex px-2 py-1">
+                      <div class="d-flex flex-column justify-content-center">
+                        <h6 class="mb-0 text-sm" id="name_{{ forloop.counter }}">{{item.p_name}}</h6>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="text-xs text-secondary mb-0" id="desc_{{ forloop.counter }}">{{item.p_desc}}</p>
+                  </td>
+                  <td class="align-middle text-center text-sm">
+                    {% if item.product_type == 'pdf' %}
+                    <a href="">PDF</a>
+                    {% elif item.product_type == 'img' %}
+                    <!-- <img class="avatar avatar-sm me-3" alt="xd"> -->
+                    <a href="">Image</a>
+                    {% endif %}
+                  </td> 
+                  <!-- <td class="align-middle text-center text-sm">
+                    <p class="text-xs text-secondary mb-0" id="price_{{ forloop.counter }}">{{item.p_price}}</p>
+                  </td> -->
+                  <p class="text-xs text-secondary mb-0" hidden id="id_{{ forloop.counter }}">{{item.id}}</p>
+
+                  
+                  <td class="align-middle text-center text-sm">
+                    <a href="javascript:;" class="text-secondary font-weight-bold text-xs" data-toggle="tooltip" data-original-title="Edit user" data-bs-toggle="modal" onclick='edit_product(
+                      "{{item.id}}",
+                      "{{item.bidmodel_set}}"
+                      )' data-bs-target="#exampleModal">View Requests</a>
+                  </td>
+
+                </tr>
+                {% endif %}
+                
+                {% endfor %}
+                
+ 
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title font-weight-normal" id="exampleModalLabel" style="margin-left: 1.5em;">View Existing Requests</h5>
+          <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="card-body">
+                <div class="table-responsive p-0">
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col" style="text-align: center;">Name</th>
+                            
+                            <th scope="col" style="text-align: center;">Date Time</th>
+                          </tr>
+                        </thead>
+                        <tbody id="bid_row_id">
+
+                        </tbody>
+                      </table>
+                </div>
+              </div>
+          <form id="product_frm_id" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-10">
+                  <input type="hidden" name="asset_id" id="asset_id" value="">
+               
+                </div>
+                <div class="col-md-1"></div>
+              </div>
+            <div class="modal-footer">
+
+              <button type="submit" style="margin-right: 2em;" class="btn bg-gradient-primary" name="form1-submit">Request Asset</button>
+            </div>
+          </form>
+          
+          
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+  function edit_product(id, bid_data){
+    bid_lst = JSON.parse(bid_data.replace(/'/g, "\""));
+    document.getElementById("asset_id").value = id;
+
+    var bid_row = ''
+    bid_lst.forEach(item => {
+      console.log(`id: ${item.id}, user: ${item.user}, price: ${item.price}`);
+      bid_row += `
+        <tr>
+          <td style="text-align: center;">${item.user.username}</td>
+       
+          <td style="text-align: center;">${item.bid_date_formatted}</td>
+        </tr>
+      `
+    });
+    const tbody = document.querySelector('#bid_row_id');
+    tbody.innerHTML = bid_row;
+    tbody.innerHTML += `<hr>`
+  }
+</script>
+{% endblock %}
